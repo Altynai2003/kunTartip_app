@@ -14,7 +14,14 @@ class HomePage extends StatelessWidget {
   Widget build(BuildContext context) {
     return Consumer<TaskProvider>(
       builder: (context, provider, child) {
-        final tasks = provider.tasks;
+        // Filter tasks for today ONLY
+        final now = DateTime.now();
+        final tasks = provider.tasks.where((task) {
+          return task.date.year == now.year &&
+              task.date.month == now.month &&
+              task.date.day == now.day;
+        }).toList();
+
         final completedCount = provider.completedTodayCount;
         final todayTotal = provider.totalTodayCount;
 
