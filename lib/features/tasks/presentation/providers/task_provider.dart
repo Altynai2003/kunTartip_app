@@ -64,6 +64,8 @@ class TaskProvider extends ChangeNotifier {
     required String description,
     required DateTime date,
     required TimeOfDay time,
+    TaskPriority priority = TaskPriority.medium,
+    TaskCategory category = TaskCategory.other,
   }) async {
     final newTask = Task(
       id: const Uuid().v4(),
@@ -71,6 +73,8 @@ class TaskProvider extends ChangeNotifier {
       description: description,
       date: date,
       time: time,
+      priority: priority,
+      category: category,
     );
 
     await _dataSource.addTask(TaskModel.fromEntity(newTask));
@@ -101,4 +105,6 @@ class TaskProvider extends ChangeNotifier {
     await _dataSource.init();
     await loadTasks();
   }
+
+  void completeAllTodayTasks() {}
 }

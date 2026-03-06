@@ -3,6 +3,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import '../providers/task_provider.dart';
+import '../../domain/entities/task_entity.dart';
 import '../../../../core/constants/app_colors.dart';
 
 class AddTaskDialog extends StatefulWidget {
@@ -17,6 +18,8 @@ class _AddTaskDialogState extends State<AddTaskDialog> {
   final _descController = TextEditingController();
   DateTime _selectedDate = DateTime.now();
   TimeOfDay _selectedTime = TimeOfDay.now();
+  TaskPriority _selectedPriority = TaskPriority.medium;
+  TaskCategory _selectedCategory = TaskCategory.other;
 
   @override
   void dispose() {
@@ -79,6 +82,8 @@ class _AddTaskDialogState extends State<AddTaskDialog> {
       description: _descController.text,
       date: _selectedDate,
       time: _selectedTime,
+      priority: _selectedPriority,
+      category: _selectedCategory,
     );
     Navigator.pop(context);
   }
@@ -86,154 +91,174 @@ class _AddTaskDialogState extends State<AddTaskDialog> {
   @override
   Widget build(BuildContext context) {
     return Dialog(
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-      backgroundColor: Colors
-          .transparent, // Make dialog background transparent for custom UI
-      insetPadding: const EdgeInsets.all(10), // Reduce default padding
-      child: contentBox(context),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(25)),
+      child: Container(
+        padding: const EdgeInsets.all(24),
+        child: SingleChildScrollView(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                'Жаңы иш',
+                style: GoogleFonts.rubik(
+                  fontSize: 24,
+                  fontWeight: FontWeight.bold,
+                  color: AppColors.primaryGreen,
+                ),
+              ),
+              const SizedBox(height: 20),
+              _buildTextField(
+                controller: _titleController,
+                label: 'Иштин аталышы',
+                icon: Icons.title,
+                hint: 'Мисалы: Проектти бүтүрүү',
+              ),
+              const SizedBox(height: 16),
+              _buildTextField(
+                controller: _descController,
+                label: 'Сыпаттамасы',
+                icon: Icons.notes,
+                hint: 'Кошумча маалымат...',
+                maxLines: 2,
+              ),
+              const SizedBox(height: 20),
+              Row(
+                children: [
+                  Expanded(
+                    child: _buildPickerBox(
+                      icon: Icons.calendar_today,
+                      label: 'Күнү',
+                      value: DateFormat('dd.MM.yyyy').format(_selectedDate),
+                      onTap: _pickDate,
+                    ),
+                  ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: _buildPickerBox(
+                      icon: Icons.access_time,
+                      label: 'Убактысы',
+                      value: _selectedTime.format(context),
+                      onTap: _pickTime,
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 20),
+              _buildPrioritySelector(),
+              const SizedBox(height: 20),
+              _buildCategorySelector(),
+              const SizedBox(height: 30),
+              Row(
+                children: [
+                  Expanded(
+                    child: OutlinedButton(
+                      onPressed: () => Navigator.pop(context),
+                      style: OutlinedButton.styleFrom(
+                        padding: const EdgeInsets.symmetric(vertical: 16),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(15),
+                        ),
+                      ),
+                      child: Text('Жокко чыгаруу', style: GoogleFonts.rubik()),
+                    ),
+                  ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: ElevatedButton(
+                      onPressed: _saveTask,
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: AppColors.primaryGreen,
+                        padding: const EdgeInsets.symmetric(vertical: 16),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(15),
+                        ),
+                      ),
+                      child: Text(
+                        'Сактоо',
+                        style: GoogleFonts.rubik(
+                          color: Colors.white,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ],
+          ),
+        ),
+      ),
     );
   }
 
-  Widget contentBox(BuildContext context) {
-    return Container(
-      width: double.infinity,
-      decoration: BoxDecoration(
-        // ignore: deprecated_member_use
-        color: Colors.white.withOpacity(0.95), // Semi-transparent white
-        borderRadius: BorderRadius.circular(20),
-      ),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          // Header
-          Container(
-            padding: const EdgeInsets.symmetric(vertical: 15),
-            decoration: const BoxDecoration(
-              color: AppColors.primaryGreen,
-              borderRadius: BorderRadius.only(
-                topLeft: Radius.circular(20),
-                topRight: Radius.circular(20),
-              ),
-            ),
-            width: double.infinity,
-            alignment: Alignment.center,
-            child: Text(
-              'Жаңы иш кошуу',
-              style: GoogleFonts.rubik(
-                fontSize: 20,
-                fontWeight: FontWeight.w500,
-                color: Colors.white,
-              ),
+  Widget _buildTextField({
+    required TextEditingController controller,
+    required String label,
+    required IconData icon,
+    required String hint,
+    int maxLines = 1,
+  }) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          label,
+          style: GoogleFonts.rubik(
+            color: AppColors.textGrey,
+            fontWeight: FontWeight.w500,
+          ),
+        ),
+        const SizedBox(height: 8),
+        TextField(
+          controller: controller,
+          maxLines: maxLines,
+          style: GoogleFonts.rubik(),
+          decoration: InputDecoration(
+            hintText: hint,
+            prefixIcon: Icon(icon, color: AppColors.primaryGreen, size: 20),
+            filled: true,
+            fillColor: Colors.grey.shade100,
+            border: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(15),
+              borderSide: BorderSide.none,
             ),
           ),
+        ),
+      ],
+    );
+  }
 
-          Padding(
-            padding: const EdgeInsets.all(20),
-            child: Column(
+  Widget _buildPickerBox({
+    required IconData icon,
+    required String label,
+    required String value,
+    required VoidCallback onTap,
+  }) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            label,
+            style: GoogleFonts.rubik(
+              color: AppColors.textGrey,
+              fontWeight: FontWeight.w500,
+            ),
+          ),
+          const SizedBox(height: 8),
+          Container(
+            padding: const EdgeInsets.all(12),
+            decoration: BoxDecoration(
+              color: Colors.grey.shade100,
+              borderRadius: BorderRadius.circular(15),
+            ),
+            child: Row(
               children: [
-                // Title Input
-                _buildTextField(
-                  controller: _titleController,
-                  label: 'Иштин аталышы *',
-                  hint: 'Мисалы: Жыйналышка катышуу',
-                  icon: Icons.check_circle_outline,
-                  color: AppColors.primaryGreen,
-                ),
-                const SizedBox(height: 15),
-
-                // Description Input
-                _buildTextField(
-                  controller: _descController,
-                  label: 'Сыпаттамасы',
-                  hint: 'Кошумча маалымат...',
-                  icon: Icons.description_outlined,
-                  color: AppColors.secondaryBlue,
-                  maxLines: 2,
-                ),
-                const SizedBox(height: 20),
-
-                // Date and Time Pickers Row
-                Row(
-                  children: [
-                    Expanded(
-                      child: _buildPicker(
-                        label: 'Күнү *',
-                        value: DateFormat('dd.MM.yyyy').format(_selectedDate),
-                        icon: Icons.calendar_today,
-                        color: Colors.purple,
-                        onTap: _pickDate,
-                      ),
-                    ),
-                    const SizedBox(width: 10),
-                    Expanded(
-                      child: _buildPicker(
-                        label: 'Убактысы *',
-                        value: _selectedTime.format(context),
-                        icon: Icons.access_time,
-                        color: Colors.orange,
-                        onTap: _pickTime,
-                      ),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 30),
-
-                // Actions
-                Row(
-                  children: [
-                    Expanded(
-                      child: ElevatedButton(
-                        onPressed: _saveTask,
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: AppColors.primaryGreen,
-                          padding: const EdgeInsets.symmetric(vertical: 15),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(10),
-                          ),
-                          elevation: 0,
-                        ),
-                        child: const Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Icon(
-                              Icons.check_circle_outline,
-                              color: Colors.white,
-                            ),
-                            SizedBox(width: 8),
-                            Text('Сактоо', style: TextStyle(fontSize: 16)),
-                          ],
-                        ),
-                      ),
-                    ),
-                    const SizedBox(width: 10),
-                    Expanded(
-                      child: OutlinedButton(
-                        onPressed: () => Navigator.pop(context),
-                        style: OutlinedButton.styleFrom(
-                          padding: const EdgeInsets.symmetric(vertical: 15),
-                          side: const BorderSide(color: Colors.grey),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(10),
-                          ),
-                        ),
-                        child: const Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Icon(Icons.close, color: Colors.grey),
-                            SizedBox(width: 8),
-                            Text(
-                              'Жокко чыгаруу',
-                              style: TextStyle(
-                                color: AppColors.textGrey,
-                                fontSize: 16,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
+                Icon(icon, color: AppColors.primaryGreen, size: 20),
+                const SizedBox(width: 8),
+                Text(value, style: GoogleFonts.rubik(fontSize: 14)),
               ],
             ),
           ),
@@ -242,136 +267,135 @@ class _AddTaskDialogState extends State<AddTaskDialog> {
     );
   }
 
-  Widget _buildTextField({
-    required TextEditingController controller,
-    required String label,
-    required String hint,
-    required IconData icon,
-    required Color color,
-    int maxLines = 1,
-  }) {
+  Widget _buildPrioritySelector() {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Row(
-          children: [
-            Icon(icon, color: color, size: 20),
-            const SizedBox(width: 8),
-            Text(label, style: const TextStyle(color: AppColors.textGrey)),
-          ],
-        ),
-        const SizedBox(height: 5),
-        TextField(
-          controller: controller,
-          maxLines: maxLines,
-          decoration: InputDecoration(
-            hintText: hint,
-            // ignore: deprecated_member_use
-            hintStyle: TextStyle(color: Colors.grey.withOpacity(0.5)),
-            border: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(10),
-              borderSide: const BorderSide(
-                color: Color.fromARGB(255, 87, 167, 80),
-              ),
-            ),
-            enabledBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(10),
-              borderSide: const BorderSide(color: Colors.white),
-            ),
-            filled: true,
-            fillColor: Colors
-                .transparent, // As per image it looks transparent with border or just text field lines. Let's make it outlined white on grey bg if needed. Actually in image it looks like a standard input field with border.
-            // Let's match the image style: dark background context. Wait, the modal is on top of content.
-            // The image shows white border inputs on dark grey overlay? No, it looks like a custom styled input.
-            contentPadding: const EdgeInsets.symmetric(
-              horizontal: 15,
-              vertical: 15,
-            ),
-            isDense: true,
-
-            // Custom styling to match image
-            focusedBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(15),
-              borderSide: const BorderSide(
-                color: Color.fromARGB(179, 51, 241, 108),
-                width: 2,
-              ),
-            ),
+        Text(
+          'Приоритет',
+          style: GoogleFonts.rubik(
+            color: AppColors.textGrey,
+            fontWeight: FontWeight.w500,
           ),
-          style: const TextStyle(color: Colors.black), // If background is dark
-          // Wait, the modal background in image 4 is dark grey/blurred, and inputs have white borders.
-          // BUT I used white background for the dialog content. I should check the image again.
-          // Image 4: The modal is separate. The background BEHIND the modal is blurred/darkened. The modal itself has a dark grey background? or it is transparent?
-          // Ah, looking closely at Image 4, the modal seems to have a semi-transparent dark grey background, and text is white.
-          // AND the previous image 3 shows a WHITE background for the main app.
-
-          // Let's stick to a clean white dialog for now as it's safer, unless I want to replicate the dark modal exactly.
-          // The User asked "designga okshosh kylyp" (make it look like the design).
-          // Image 4 is the Add Task screen. It has a dark overlay. The text fields look like they are on a dark background.
-          // Okay, I will make the Dialog background dark grey/black as shown in the image.
+        ),
+        const SizedBox(height: 12),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: TaskPriority.values.map((p) {
+            bool isSelected = _selectedPriority == p;
+            Color color = p == TaskPriority.high
+                ? AppColors.priorityHigh
+                : p == TaskPriority.medium
+                ? AppColors.priorityMedium
+                : AppColors.priorityLow;
+            return Expanded(
+              child: GestureDetector(
+                onTap: () => setState(() => _selectedPriority = p),
+                child: Container(
+                  margin: const EdgeInsets.symmetric(horizontal: 4),
+                  padding: const EdgeInsets.symmetric(vertical: 10),
+                  decoration: BoxDecoration(
+                    color: isSelected ? color : color.withValues(alpha: 0.1),
+                    borderRadius: BorderRadius.circular(12),
+                    border: Border.all(color: color, width: 2),
+                  ),
+                  child: Center(
+                    child: Text(
+                      p == TaskPriority.high
+                          ? "Жогору"
+                          : p == TaskPriority.medium
+                          ? "Орто"
+                          : "Төмөн",
+                      style: GoogleFonts.rubik(
+                        color: isSelected ? Colors.white : color,
+                        fontSize: 12,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+            );
+          }).toList(),
         ),
       ],
     );
   }
 
-  // Re-implementing _buildTextField to match the design (Dark Modal) better?
-  // Actually, the user might prefer a consistent light theme if the rest is light.
-  // Let's look at Image 1 and 2. They are Light Theme.
-  // Image 4 (Add Task) seems to be a dark overlay or maybe the user just has a dark theme for that dialog?
-  // Or maybe it is just a dark modal.
-
-  // I will use the Light Theme for the dialog to match the main screen, but style it nicely.
-  // The code above produces a White Dialog. To make it match the image exactly (Dark), I would need to change colors.
-  // But since the main app is Light (Image 1, 2, 3), I will keep the dialog Light to be consistent, unless the user specifically asked for Dark Mode.
-  // The prompt says "ushul designga okshosh kylyp" (like THIS design).
-  // I will make the inputs look like the image: Rounded borders.
-
-  Widget _buildPicker({
-    required String label,
-    required String value,
-    required IconData icon,
-    required Color color,
-    required VoidCallback onTap,
-  }) {
+  Widget _buildCategorySelector() {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Row(
-          children: [
-            Icon(icon, color: color, size: 20),
-            const SizedBox(width: 8),
-            Text(label, style: const TextStyle(color: AppColors.textGrey)),
-          ],
-        ),
-        const SizedBox(height: 5),
-        InkWell(
-          onTap: onTap,
-          borderRadius: BorderRadius.circular(10),
-          child: Container(
-            padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 12),
-            decoration: BoxDecoration(
-              border: Border.all(color: Colors.grey.shade400),
-              borderRadius: BorderRadius.circular(10),
-            ),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Text(value, style: const TextStyle(fontSize: 16)),
-                if (label.contains("Күнү"))
-                  const Icon(
-                    Icons.calendar_today_outlined,
-                    size: 18,
-                    color: Colors.grey,
-                  )
-                else
-                  const Icon(Icons.access_time, size: 18, color: Colors.grey),
-              ],
-            ),
+        Text(
+          'Категория',
+          style: GoogleFonts.rubik(
+            color: AppColors.textGrey,
+            fontWeight: FontWeight.w500,
           ),
+        ),
+        const SizedBox(height: 12),
+        Wrap(
+          spacing: 8,
+          runSpacing: 8,
+          children: TaskCategory.values.map((c) {
+            bool isSelected = _selectedCategory == c;
+            String label = c == TaskCategory.work
+                ? "Жумуш"
+                : c == TaskCategory.personal
+                ? "Жеке"
+                : c == TaskCategory.health
+                ? "Ден соолук"
+                : c == TaskCategory.shopping
+                ? "Сатып алуу"
+                : "Башка";
+            IconData icon = c == TaskCategory.work
+                ? Icons.work_outline
+                : c == TaskCategory.personal
+                ? Icons.person_outline
+                : c == TaskCategory.health
+                ? Icons.favorite_border
+                : c == TaskCategory.shopping
+                ? Icons.shopping_cart_outlined
+                : Icons.more_horiz;
+            return GestureDetector(
+              onTap: () => setState(() => _selectedCategory = c),
+              child: Container(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 12,
+                  vertical: 8,
+                ),
+                decoration: BoxDecoration(
+                  color: isSelected
+                      ? AppColors.primaryGreen
+                      : Colors.grey.shade100,
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Icon(
+                      icon,
+                      size: 16,
+                      color: isSelected ? Colors.white : AppColors.textGrey,
+                    ),
+                    const SizedBox(width: 6),
+                    Text(
+                      label,
+                      style: GoogleFonts.rubik(
+                        color: isSelected ? Colors.white : AppColors.textGrey,
+                        fontSize: 12,
+                        fontWeight: isSelected
+                            ? FontWeight.bold
+                            : FontWeight.normal,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            );
+          }).toList(),
         ),
       ],
     );
   }
 }
-
-// I need to fix _buildTextField in the code block above to be correct for Light Theme.

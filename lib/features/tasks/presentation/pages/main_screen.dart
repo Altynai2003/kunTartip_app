@@ -29,7 +29,7 @@ class _MainScreenState extends State<MainScreen> {
           boxShadow: [
             BoxShadow(
               // ignore: deprecated_member_use
-              color: Colors.grey.withOpacity(0.1),
+              color: Colors.black.withValues(alpha: 0.05),
               blurRadius: 10,
               offset: const Offset(0, -5),
             ),
@@ -41,25 +41,20 @@ class _MainScreenState extends State<MainScreen> {
           backgroundColor: Colors.white,
           selectedItemColor: AppColors.primaryGreen,
           unselectedItemColor: AppColors.textGrey,
-          selectedLabelStyle: GoogleFonts.rubik(fontWeight: FontWeight.w500),
+          selectedLabelStyle: GoogleFonts.rubik(fontWeight: FontWeight.w600),
           unselectedLabelStyle: GoogleFonts.rubik(),
           type: BottomNavigationBarType.fixed,
           items: const [
             BottomNavigationBarItem(
-              icon: Icon(Icons.check_box_outlined),
-              activeIcon: Icon(Icons.check_box),
-              label: 'Башкы',
+              icon: Icon(Icons.today_outlined),
+              activeIcon: Icon(Icons.today),
+              label: 'Бүгүн',
             ),
             BottomNavigationBarItem(
               icon: Icon(Icons.bar_chart_outlined),
               activeIcon: Icon(Icons.bar_chart),
-              label: 'Жыйынтык',
+              label: 'Статистика',
             ),
-            // BottomNavigationBarItem(
-            //   icon: Icon(Icons.calendar_month_outlined),
-            //   activeIcon: Icon(Icons.calendar_month),
-            //   label: 'Баары',
-            // ),
           ],
         ),
       ),

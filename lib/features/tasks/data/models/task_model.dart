@@ -24,6 +24,12 @@ class TaskModel extends HiveObject {
   @HiveField(5)
   bool isCompleted;
 
+  @HiveField(6)
+  int priorityIndex;
+
+  @HiveField(7)
+  int categoryIndex;
+
   TaskModel({
     required this.id,
     required this.title,
@@ -31,6 +37,8 @@ class TaskModel extends HiveObject {
     required this.date,
     required this.timeString,
     this.isCompleted = false,
+    this.priorityIndex = 1, // Medium
+    this.categoryIndex = 4, // Other
   });
 
   // Convert from Entity to Model
@@ -42,6 +50,8 @@ class TaskModel extends HiveObject {
       date: task.date,
       timeString: '${task.time.hour}:${task.time.minute}',
       isCompleted: task.isCompleted,
+      priorityIndex: task.priority.index,
+      categoryIndex: task.category.index,
     );
   }
 
@@ -55,6 +65,8 @@ class TaskModel extends HiveObject {
       date: date,
       time: TimeOfDay(hour: int.parse(parts[0]), minute: int.parse(parts[1])),
       isCompleted: isCompleted,
+      priority: TaskPriority.values[priorityIndex],
+      category: TaskCategory.values[categoryIndex],
     );
   }
 }

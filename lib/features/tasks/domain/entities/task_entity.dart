@@ -1,5 +1,9 @@
 import 'package:flutter/material.dart';
 
+enum TaskPriority { low, medium, high }
+
+enum TaskCategory { work, personal, health, shopping, other }
+
 class Task {
   final String id;
   final String title;
@@ -7,6 +11,8 @@ class Task {
   final DateTime date;
   final TimeOfDay time;
   final bool isCompleted;
+  final TaskPriority priority;
+  final TaskCategory category;
 
   Task({
     required this.id,
@@ -15,5 +21,7 @@ class Task {
     required this.date,
     required this.time,
     this.isCompleted = false,
+    this.priority = TaskPriority.medium,
+    this.category = TaskCategory.other,
   });
 }

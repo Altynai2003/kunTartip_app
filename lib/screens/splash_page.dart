@@ -53,14 +53,11 @@ class SplashPage extends StatelessWidget {
               ),
             ),
 
-            const SizedBox(height: 10),
-
             // СЛОГАН
-            const Text(
-              "Тартиптүү күн — ийгиликтүү жашоо",
-              style: TextStyle(fontSize: 16, color: Colors.white70),
-            ),
-
+            // const Text(
+            //   "Тартиптүү күн — ийгиликтүү жашоо",
+            //   style: TextStyle(fontSize: 16, color: Colors.white70),
+            // ),
             const SizedBox(height: 40),
 
             // УЛАНТУУ БАСМЫЧЫ
