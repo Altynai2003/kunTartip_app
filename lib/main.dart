@@ -5,6 +5,8 @@ import 'package:hive_flutter/hive_flutter.dart';
 import 'package:provider/provider.dart';
 import 'package:project_kun_tartip/features/tasks/data/models/task_model.dart';
 import 'package:project_kun_tartip/features/tasks/presentation/providers/task_provider.dart';
+import 'package:project_kun_tartip/core/theme/app_theme.dart';
+import 'package:project_kun_tartip/core/providers/user_provider.dart';
 import 'package:project_kun_tartip/screens/splash_page.dart';
 
 void main() async {
@@ -19,6 +21,7 @@ void main() async {
     MultiProvider(
       providers: [
         ChangeNotifierProvider(create: (_) => TaskProvider()..init()),
+        ChangeNotifierProvider(create: (_) => UserProvider()..init()),
       ],
       child: const MyApp(),
     ),
@@ -33,7 +36,8 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       title: 'КүнТартип',
-      theme: ThemeData(primarySwatch: Colors.green, useMaterial3: true),
+      theme: AppTheme.light,
+      themeMode: ThemeMode.light,
       home: const SplashPage(),
     );
   }

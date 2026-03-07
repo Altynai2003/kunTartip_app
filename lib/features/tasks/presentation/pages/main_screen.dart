@@ -17,28 +17,33 @@ class _MainScreenState extends State<MainScreen> {
   final List<Widget> _pages = [
     const HomePage(),
     const StatsPage(),
-    const Center(child: Text('Баары')), // Placeholder for "All" page
+    const Center(child: Text('Баары')),
   ];
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      appBar: AppBar(
+        title: Text(
+          "Күн Тартип",
+          style: GoogleFonts.rubik(fontWeight: FontWeight.bold),
+        ),
+      ),
       body: _pages[_currentIndex],
       bottomNavigationBar: Container(
-        decoration: BoxDecoration(
+        decoration: const BoxDecoration(
           boxShadow: [
             BoxShadow(
-              // ignore: deprecated_member_use
-              color: Colors.black.withValues(alpha: 0.05),
+              color: Colors.black12,
               blurRadius: 10,
-              offset: const Offset(0, -5),
+              offset: Offset(0, -5),
             ),
           ],
         ),
         child: BottomNavigationBar(
           currentIndex: _currentIndex,
           onTap: (index) => setState(() => _currentIndex = index),
-          backgroundColor: Colors.white,
+          backgroundColor: Theme.of(context).cardColor,
           selectedItemColor: AppColors.primaryGreen,
           unselectedItemColor: AppColors.textGrey,
           selectedLabelStyle: GoogleFonts.rubik(fontWeight: FontWeight.w600),

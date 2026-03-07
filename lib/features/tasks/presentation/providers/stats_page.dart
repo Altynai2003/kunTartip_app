@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 import '../../../../core/constants/app_colors.dart';
+import '../../../../core/providers/user_provider.dart';
 import '../providers/task_provider.dart';
 import '../../domain/entities/task_entity.dart';
 
@@ -10,6 +11,7 @@ class StatsPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final userProvider = Provider.of<UserProvider>(context);
     return Consumer<TaskProvider>(
       builder: (context, provider, child) {
         final now = DateTime.now();
@@ -21,19 +23,15 @@ class StatsPage extends StatelessWidget {
           (index) => monday.add(Duration(days: index)),
         );
 
-        int totalWeekTasks = 0;
-        int completedWeekTasks = 0;
+        final weekTotal = provider.tasks.where((t) {
+          final isInWeek =
+              t.date.isAfter(monday.subtract(const Duration(seconds: 1))) &&
+              t.date.isBefore(monday.add(const Duration(days: 7)));
+          return isInWeek;
+        }).toList();
 
-        for (var day in weekDays) {
-          final tasksForDay = provider.tasks.where(
-            (t) =>
-                t.date.year == day.year &&
-                t.date.month == day.month &&
-                t.date.day == day.day,
-          );
-          totalWeekTasks += tasksForDay.length;
-          completedWeekTasks += tasksForDay.where((t) => t.isCompleted).length;
-        }
+        final totalWeekTasks = weekTotal.length;
+        final completedWeekTasks = weekTotal.where((t) => t.isCompleted).length;
 
         final percentage = totalWeekTasks == 0
             ? 0.0
@@ -45,7 +43,7 @@ class StatsPage extends StatelessWidget {
             backgroundColor: AppColors.primaryGreen,
             elevation: 0,
             title: Text(
-              'Жумалык жыйынтык',
+              'Статистика',
               style: GoogleFonts.rubik(
                 fontWeight: FontWeight.bold,
                 color: Colors.white,
@@ -54,7 +52,31 @@ class StatsPage extends StatelessWidget {
           ),
           body: SingleChildScrollView(
             child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
+                Padding(
+                  padding: const EdgeInsets.fromLTRB(24, 20, 24, 0),
+                  child: Text(
+                    "Салам, ${userProvider.userName ?? 'Алтынай'}!",
+                    style: GoogleFonts.rubik(
+                      fontSize: 24,
+                      fontWeight: FontWeight.bold,
+                      color: AppColors.textDark,
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 8),
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 24),
+                  child: Text(
+                    "Бүгүнкү жана жумалык жетишкендиктериңиз:",
+                    style: GoogleFonts.rubik(
+                      fontSize: 14,
+                      color: AppColors.textGrey,
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 20),
                 _buildProgressHeader(
                   percentage,
                   completedWeekTasks,

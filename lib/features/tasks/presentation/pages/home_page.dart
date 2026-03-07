@@ -37,7 +37,7 @@ class _HomePageState extends State<HomePage> {
         final progress = totalToday > 0 ? completedToday / totalToday : 0.0;
 
         return Scaffold(
-          backgroundColor: AppColors.background,
+          backgroundColor: Theme.of(context).scaffoldBackgroundColor,
           appBar: AppBar(
             backgroundColor: AppColors.primaryGreen,
             elevation: 0,
@@ -109,9 +109,9 @@ class _HomePageState extends State<HomePage> {
       child: Container(
         padding: const EdgeInsets.all(20),
         decoration: BoxDecoration(
-          color: Colors.white.withValues(alpha: 0.15),
+          color: Colors.white12,
           borderRadius: BorderRadius.circular(25),
-          border: Border.all(color: Colors.white.withValues(alpha: 0.2)),
+          border: Border.all(color: Colors.white24),
         ),
         child: Row(
           children: [
@@ -149,7 +149,7 @@ class _HomePageState extends State<HomePage> {
                   Text(
                     "Бүгүнкү прогресс",
                     style: GoogleFonts.rubik(
-                      color: Colors.white.withValues(alpha: 0.9),
+                      color: Colors.white70,
                       fontSize: 16,
                       fontWeight: FontWeight.w500,
                     ),
@@ -188,6 +188,7 @@ class _HomePageState extends State<HomePage> {
 
   Widget _buildTab(int index, String title) {
     bool isSelected = _selectedTabIndex == index;
+
     return Expanded(
       child: GestureDetector(
         onTap: () => setState(() => _selectedTabIndex = index),
@@ -198,10 +199,10 @@ class _HomePageState extends State<HomePage> {
             borderRadius: BorderRadius.circular(12),
             boxShadow: isSelected
                 ? [
-                    BoxShadow(
-                      color: Colors.black.withValues(alpha: 0.05),
+                    const BoxShadow(
+                      color: Colors.black12,
                       blurRadius: 4,
-                      offset: const Offset(0, 2),
+                      offset: Offset(0, 2),
                     ),
                   ]
                 : [],
