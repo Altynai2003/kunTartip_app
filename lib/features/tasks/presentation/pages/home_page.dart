@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 import '../../../../core/constants/app_colors.dart';
+import '../../../../core/providers/user_provider.dart';
 import '../providers/task_provider.dart';
 import '../widgets/add_task_dialog.dart';
 import '../widgets/task_item.dart';
@@ -18,6 +19,7 @@ class _HomePageState extends State<HomePage> {
 
   @override
   Widget build(BuildContext context) {
+    final userProvider = Provider.of<UserProvider>(context);
     return Consumer<TaskProvider>(
       builder: (context, provider, child) {
         final now = DateTime.now();
@@ -50,7 +52,7 @@ class _HomePageState extends State<HomePage> {
                 ),
                 const SizedBox(width: 12),
                 Text(
-                  _getGreeting(),
+                  _getGreeting(userProvider.userName),
                   style: GoogleFonts.rubik(
                     fontSize: 22,
                     fontWeight: FontWeight.bold,
@@ -88,11 +90,12 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
-  String _getGreeting() {
+  String _getGreeting(String? name) {
     final hour = DateTime.now().hour;
-    if (hour < 12) return "Кутман таң!";
-    if (hour < 18) return "Кутман күн!";
-    return "Кутман кеч!";
+    final displayName = name ?? 'Алтынай';
+    if (hour < 12) return "Кутман таң, $displayName!";
+    if (hour < 18) return "Кутман күн, $displayName!";
+    return "Кутман кеч, $displayName!";
   }
 
   Widget _buildModernHeader(int completed, int total, double progress) {

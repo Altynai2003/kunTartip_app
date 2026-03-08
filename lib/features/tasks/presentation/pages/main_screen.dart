@@ -23,12 +23,6 @@ class _MainScreenState extends State<MainScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: Text(
-          "Күн Тартип",
-          style: GoogleFonts.rubik(fontWeight: FontWeight.bold),
-        ),
-      ),
       body: _pages[_currentIndex],
       bottomNavigationBar: Container(
         decoration: const BoxDecoration(

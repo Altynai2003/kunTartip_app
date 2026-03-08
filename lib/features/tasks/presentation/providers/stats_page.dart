@@ -40,15 +40,9 @@ class StatsPage extends StatelessWidget {
         return Scaffold(
           backgroundColor: AppColors.background,
           appBar: AppBar(
-            backgroundColor: AppColors.primaryGreen,
+            backgroundColor: Colors.transparent,
             elevation: 0,
-            title: Text(
-              'Статистика',
-              style: GoogleFonts.rubik(
-                fontWeight: FontWeight.bold,
-                color: Colors.white,
-              ),
-            ),
+            toolbarHeight: 0,
           ),
           body: SingleChildScrollView(
             child: Column(
@@ -56,28 +50,46 @@ class StatsPage extends StatelessWidget {
               children: [
                 Padding(
                   padding: const EdgeInsets.fromLTRB(24, 20, 24, 0),
-                  child: Text(
-                    "Салам, ${userProvider.userName ?? 'Алтынай'}!",
-                    style: GoogleFonts.rubik(
-                      fontSize: 24,
-                      fontWeight: FontWeight.bold,
-                      color: AppColors.textDark,
-                    ),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            "Салам, ${userProvider.userName ?? 'Алтынай'}!",
+                            style: GoogleFonts.rubik(
+                              fontSize: 28,
+                              fontWeight: FontWeight.bold,
+                              color: AppColors.textDark,
+                            ),
+                          ),
+                          Text(
+                            "Жумалык прогрессиңиз",
+                            style: GoogleFonts.rubik(
+                              fontSize: 16,
+                              color: AppColors.textGrey,
+                            ),
+                          ),
+                        ],
+                      ),
+                      Container(
+                        padding: const EdgeInsets.all(10),
+                        decoration: const BoxDecoration(
+                          color: AppColors.primaryGreen,
+                          shape: BoxShape.circle,
+                        ),
+                        child: const Icon(
+                          Icons.insights_rounded,
+                          color: AppColors.primaryGreen,
+                        ),
+                      ),
+                    ],
                   ),
                 ),
-                const SizedBox(height: 8),
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 24),
-                  child: Text(
-                    "Бүгүнкү жана жумалык жетишкендиктериңиз:",
-                    style: GoogleFonts.rubik(
-                      fontSize: 14,
-                      color: AppColors.textGrey,
-                    ),
-                  ),
-                ),
-                const SizedBox(height: 20),
+                const SizedBox(height: 24),
                 _buildProgressHeader(
+                  context,
                   percentage,
                   completedWeekTasks,
                   totalWeekTasks,
@@ -116,10 +128,15 @@ class StatsPage extends StatelessWidget {
     );
   }
 
-  Widget _buildProgressHeader(double percentage, int completed, int total) {
-    String feedbackMsg = "Дагы аракет кыл";
-    IconData feedbackIcon = Icons.bolt;
-    Color color = Colors.orange;
+  Widget _buildProgressHeader(
+    BuildContext context,
+    double percentage,
+    int completed,
+    int total,
+  ) {
+    String feedbackMsg;
+    IconData feedbackIcon;
+    Color color;
 
     if (percentage > 0.8) {
       feedbackMsg = "Азаматсыз!";
@@ -129,33 +146,26 @@ class StatsPage extends StatelessWidget {
       feedbackMsg = "Жакшы бара жатасыз";
       feedbackIcon = Icons.thumb_up_rounded;
       color = AppColors.secondaryBlue;
-    } else if (percentage > 0.1) {
-      feedbackMsg = "Жакшы";
-      feedbackIcon = Icons.trending_up_rounded;
-      color = Colors.blue;
+    } else {
+      feedbackMsg = "Дагы аракет кыл";
+      feedbackIcon = Icons.bolt;
+      color = Colors.orange;
     }
 
     return Container(
       width: double.infinity,
-      padding: const EdgeInsets.fromLTRB(24, 0, 24, 40),
-      decoration: const BoxDecoration(
-        color: AppColors.primaryGreen,
-        borderRadius: BorderRadius.only(
-          bottomLeft: Radius.circular(40),
-          bottomRight: Radius.circular(40),
-        ),
-      ),
+      padding: const EdgeInsets.symmetric(horizontal: 24),
       child: Container(
         padding: const EdgeInsets.all(24),
         decoration: BoxDecoration(
-          color: Colors.white,
+          gradient: LinearGradient(
+            colors: [color],
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+          ),
           borderRadius: BorderRadius.circular(30),
           boxShadow: [
-            BoxShadow(
-              color: Colors.black.withValues(alpha: 0.1),
-              blurRadius: 20,
-              offset: const Offset(0, 10),
-            ),
+            BoxShadow(color: color, blurRadius: 15, offset: const Offset(0, 8)),
           ],
         ),
         child: Column(
@@ -169,44 +179,85 @@ class StatsPage extends StatelessWidget {
                     Text(
                       feedbackMsg,
                       style: GoogleFonts.rubik(
-                        fontSize: 20,
+                        fontSize: 22,
                         fontWeight: FontWeight.bold,
-                        color: color,
+                        color: Colors.white,
                       ),
                     ),
                     const SizedBox(height: 4),
                     Text(
-                      "Ушул жумада $completed / $total",
+                      "Ушул жумада $completed / $total аткарылды",
                       style: GoogleFonts.rubik(
-                        color: AppColors.textGrey,
+                        // ignore: deprecated_member_use
+                        color: Colors.white.withOpacity(0.9),
                         fontSize: 14,
                       ),
                     ),
                   ],
                 ),
-                Icon(feedbackIcon, size: 40, color: color),
+                Container(
+                  padding: const EdgeInsets.all(12),
+                  decoration: BoxDecoration(
+                    // ignore: deprecated_member_use
+                    color: Colors.white.withOpacity(0.2),
+                    shape: BoxShape.circle,
+                  ),
+                  child: Icon(feedbackIcon, size: 30, color: Colors.white),
+                ),
               ],
             ),
-            const SizedBox(height: 24),
-            ClipRRect(
-              borderRadius: BorderRadius.circular(20),
-              child: LinearProgressIndicator(
-                value: percentage,
-                minHeight: 12,
-                backgroundColor: Colors.grey.shade100,
-                valueColor: AlwaysStoppedAnimation<Color>(color),
-              ),
-            ),
-            const SizedBox(height: 12),
-            Align(
-              alignment: Alignment.centerRight,
-              child: Text(
-                "${(percentage * 100).toInt()}% бүтүрүлдү",
-                style: GoogleFonts.rubik(
-                  fontWeight: FontWeight.bold,
-                  color: color,
+            const SizedBox(height: 30),
+            Stack(
+              children: [
+                Container(
+                  height: 12,
+                  width: double.infinity,
+                  decoration: BoxDecoration(
+                    // ignore: deprecated_member_use
+                    color: Colors.white.withOpacity(0.2),
+                    borderRadius: BorderRadius.circular(20),
+                  ),
                 ),
-              ),
+                AnimatedContainer(
+                  duration: const Duration(milliseconds: 800),
+                  height: 12,
+                  width: MediaQuery.of(context).size.width * 0.7 * percentage,
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(20),
+                    boxShadow: [
+                      BoxShadow(
+                        // ignore: deprecated_member_use
+                        color: Colors.white.withOpacity(0.5),
+                        blurRadius: 4,
+                        offset: const Offset(0, 0),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 16),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text(
+                  "Прогресс",
+                  style: GoogleFonts.rubik(
+                    // ignore: deprecated_member_use
+                    color: Colors.white.withOpacity(0.9),
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
+                Text(
+                  "${(percentage * 100).toInt()}%",
+                  style: GoogleFonts.rubik(
+                    fontWeight: FontWeight.bold,
+                    color: Colors.white,
+                    fontSize: 18,
+                  ),
+                ),
+              ],
             ),
           ],
         ),
