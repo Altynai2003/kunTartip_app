@@ -88,8 +88,10 @@ class StatsPage extends StatelessWidget {
                   ),
                 ),
                 const SizedBox(height: 24),
-                _buildProgressHeader(
+                _buildWeeklyProgressDashboard(
                   context,
+                  provider,
+                  weekDays,
                   percentage,
                   completedWeekTasks,
                   totalWeekTasks,
@@ -128,8 +130,10 @@ class StatsPage extends StatelessWidget {
     );
   }
 
-  Widget _buildProgressHeader(
+  Widget _buildWeeklyProgressDashboard(
     BuildContext context,
+    TaskProvider provider,
+    List<DateTime> weekDays,
     double percentage,
     int completed,
     int total,
@@ -159,13 +163,17 @@ class StatsPage extends StatelessWidget {
         padding: const EdgeInsets.all(24),
         decoration: BoxDecoration(
           gradient: LinearGradient(
-            colors: [color],
+            colors: [color, color.withValues(alpha: 0.8)],
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,
           ),
           borderRadius: BorderRadius.circular(30),
           boxShadow: [
-            BoxShadow(color: color, blurRadius: 15, offset: const Offset(0, 8)),
+            BoxShadow(
+              color: color.withValues(alpha: 0.4),
+              blurRadius: 15,
+              offset: const Offset(0, 8),
+            ),
           ],
         ),
         child: Column(
@@ -188,8 +196,7 @@ class StatsPage extends StatelessWidget {
                     Text(
                       "Ушул жумада $completed / $total аткарылды",
                       style: GoogleFonts.rubik(
-                        // ignore: deprecated_member_use
-                        color: Colors.white.withOpacity(0.9),
+                        color: Colors.white.withValues(alpha: 0.9),
                         fontSize: 14,
                       ),
                     ),
@@ -198,54 +205,87 @@ class StatsPage extends StatelessWidget {
                 Container(
                   padding: const EdgeInsets.all(12),
                   decoration: BoxDecoration(
-                    // ignore: deprecated_member_use
-                    color: Colors.white.withOpacity(0.2),
+                    color: Colors.white.withValues(alpha: 0.2),
                     shape: BoxShape.circle,
                   ),
                   child: Icon(feedbackIcon, size: 30, color: Colors.white),
                 ),
               ],
             ),
-            const SizedBox(height: 30),
-            Stack(
-              children: [
-                Container(
-                  height: 12,
-                  width: double.infinity,
-                  decoration: BoxDecoration(
-                    // ignore: deprecated_member_use
-                    color: Colors.white.withOpacity(0.2),
-                    borderRadius: BorderRadius.circular(20),
-                  ),
-                ),
-                AnimatedContainer(
-                  duration: const Duration(milliseconds: 800),
-                  height: 12,
-                  width: MediaQuery.of(context).size.width * 0.7 * percentage,
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.circular(20),
-                    boxShadow: [
-                      BoxShadow(
-                        // ignore: deprecated_member_use
-                        color: Colors.white.withOpacity(0.5),
-                        blurRadius: 4,
-                        offset: const Offset(0, 0),
+            const SizedBox(height: 24),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: weekDays.map((day) {
+                final dayTasks = provider.tasks
+                    .where(
+                      (t) =>
+                          t.date.year == day.year &&
+                          t.date.month == day.month &&
+                          t.date.day == day.day,
+                    )
+                    .toList();
+
+                final dayCompleted = dayTasks
+                    .where((t) => t.isCompleted)
+                    .length;
+                final dayProgress = dayTasks.isEmpty
+                    ? 0.0
+                    : dayCompleted / dayTasks.length;
+                final isToday =
+                    DateTime.now().year == day.year &&
+                    DateTime.now().month == day.month &&
+                    DateTime.now().day == day.day;
+
+                return Column(
+                  children: [
+                    Container(
+                      width: 32,
+                      height: 32,
+                      decoration: BoxDecoration(
+                        color: isToday
+                            ? Colors.white
+                            : Colors.white.withValues(alpha: 0.2),
+                        borderRadius: BorderRadius.circular(8),
+                        border: isToday
+                            ? Border.all(color: Colors.white, width: 2)
+                            : null,
                       ),
-                    ],
-                  ),
-                ),
-              ],
+                      child: Center(
+                        child: Text(
+                          _getWeekdayInitial(day.weekday),
+                          style: GoogleFonts.rubik(
+                            fontSize: 12,
+                            fontWeight: FontWeight.bold,
+                            color: isToday ? color : Colors.white,
+                          ),
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 8),
+                    Container(
+                      width: 8,
+                      height: 8,
+                      decoration: BoxDecoration(
+                        color: dayTasks.isEmpty
+                            ? Colors.white.withValues(alpha: 0.2)
+                            : (dayProgress == 1.0
+                                  ? Colors.white
+                                  : Colors.white.withValues(alpha: 0.5)),
+                        shape: BoxShape.circle,
+                      ),
+                    ),
+                  ],
+                );
+              }).toList(),
             ),
-            const SizedBox(height: 16),
+            const SizedBox(height: 20),
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Text(
-                  "Прогресс",
+                  "Жалпы прогресс",
                   style: GoogleFonts.rubik(
-                    // ignore: deprecated_member_use
-                    color: Colors.white.withOpacity(0.9),
+                    color: Colors.white.withValues(alpha: 0.9),
                     fontWeight: FontWeight.w500,
                   ),
                 ),
@@ -263,6 +303,11 @@ class StatsPage extends StatelessWidget {
         ),
       ),
     );
+  }
+
+  String _getWeekdayInitial(int weekday) {
+    const initials = ['Д', 'Ш', 'Ш', 'Б', 'Ж', 'И', 'Ж'];
+    return initials[weekday - 1];
   }
 
   Widget _buildDayCard(TaskProvider provider, DateTime day, DateTime now) {
