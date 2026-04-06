@@ -114,15 +114,15 @@ class _SplashPageState extends State<SplashPage> {
 
                 const SizedBox(height: 10),
 
-                Text(
-                  "Тартиптүү күн — ийгиликтүү жашоо",
-                  textAlign: TextAlign.center,
-                  style: GoogleFonts.rubik(
-                    fontSize: 16,
-                    color: Colors.white,
-                    fontStyle: FontStyle.italic,
-                  ),
-                ),
+                // Text(
+                //   "Тартиптүү күн — ийгиликтүү жашоо",
+                //   textAlign: TextAlign.center,
+                //   style: GoogleFonts.rubik(
+                //     fontSize: 16,
+                //     color: Colors.white,
+                //     fontStyle: FontStyle.italic,
+                //   ),
+                // ),
 
                 const SizedBox(height: 60),
 
@@ -142,7 +142,7 @@ class _SplashPageState extends State<SplashPage> {
                             color: Color.fromARGB(255, 3, 3, 3),
                           ),
                           filled: true,
-                          fillColor: Colors.white,
+                          fillColor: const Color.fromARGB(255, 7, 7, 7),
                           border: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(16),
                             borderSide: BorderSide.none,

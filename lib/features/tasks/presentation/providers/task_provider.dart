@@ -82,6 +82,15 @@ class TaskProvider extends ChangeNotifier {
   }
 
   Future<void> toggleTaskStatus(Task task) async {
+    final now = DateTime.now();
+
+    // Only allow toggling if the task date is today
+    if (task.date.year != now.year ||
+        task.date.month != now.month ||
+        task.date.day != now.day) {
+      return;
+    }
+
     final updatedTask = Task(
       id: task.id,
       title: task.title,
@@ -89,6 +98,8 @@ class TaskProvider extends ChangeNotifier {
       date: task.date,
       time: task.time,
       isCompleted: !task.isCompleted,
+      priority: task.priority,
+      category: task.category,
     );
 
     await _dataSource.updateTask(TaskModel.fromEntity(updatedTask));
